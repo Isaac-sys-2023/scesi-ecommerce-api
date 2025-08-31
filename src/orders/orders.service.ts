@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { Order } from './entities/order.entity';
 import { OrderItem } from './entities/order-item.entity';
 import { Repository } from 'typeorm';
-import { CartsService } from 'src/carts/carts.service';
+import { CartsService } from '../carts/carts.service';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
