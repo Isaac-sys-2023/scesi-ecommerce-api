@@ -30,8 +30,8 @@ Debes tener instalado:
 #### 1. Clona el repositorio e instala dependencias:
 
 ```bash
-git clone https://github.com/tu-repo/backend-nest.git
-cd backend-nest
+git clone https://github.com/Isaac-sys-2023/scesi-ecommerce-api.git
+cd scesi-ecommerce-api
 npm install
 ```
 #### 2. Levanta la base de datos con Docker
