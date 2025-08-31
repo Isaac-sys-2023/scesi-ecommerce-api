@@ -23,8 +23,10 @@ import { OrdersModule } from './orders/orders.module';
         username: cfg.get('DB_USER'),
         password: cfg.get('DB_PASS'),
         database: cfg.get('DB_NAME'),
-        autoLoadEntities: true,   // mueve entidades automáticamente
-        synchronize: true,        // SOLO en dev; en prod = false + migrations
+        autoLoadEntities: true,
+        // synchronize: true,
+        synchronize: false,
+        migrationsRun: true,
         logging: cfg.get('NODE_ENV') === 'development',
       }),
     }),
