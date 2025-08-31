@@ -13,7 +13,7 @@ import { OrdersModule } from './orders/orders.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({ isGlobal: true, envFilePath: [`.env`], }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (cfg: ConfigService) => ({
@@ -28,6 +28,10 @@ import { OrdersModule } from './orders/orders.module';
         synchronize: false,
         migrationsRun: true,
         logging: cfg.get('NODE_ENV') === 'development',
+
+        ssl: {
+          rejectUnauthorized: false, // 👈 importante en Render
+        },
       }),
     }),
     UsersModule,
