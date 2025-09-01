@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, OneToMany, ManyToOne, CreateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, OneToMany, ManyToOne, CreateDateColumn, Column } from 'typeorm';
 import { OrderItem } from './order-item.entity';
 import { User } from '../../users/entities/user.entity';
 
@@ -15,4 +15,7 @@ export class Order {
 
   @CreateDateColumn()
   createdAt: Date;
+
+  @Column({ default: 'pending' })
+  status: 'pending' | 'paid' | 'shipped' | 'cancelled';
 }
