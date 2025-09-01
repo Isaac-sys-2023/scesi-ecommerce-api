@@ -5,13 +5,14 @@ import { CategoriesService } from '../categories/categories.service';
 import { Product } from './entities/product.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
+import { UpdateProductDto } from './dto/update-product.dto';
 
 @Injectable()
 export class ProductsService {
-    constructor(
+  constructor(
     @InjectRepository(Product) private repo: Repository<Product>,
     private categories: CategoriesService,
-  ) {}
+  ) { }
 
   async create(dto: CreateProductDto) {
     const category = await this.categories.findOne(dto.categoryId);
@@ -42,5 +43,23 @@ export class ProductsService {
     const product = await this.repo.findOne({ where: { id } });
     if (!product) throw new NotFoundException('Product not found');
     return product;
+  }
+
+  async update(id: string, updateProductDto: UpdateProductDto) {
+    const product = await this.repo.findOne({ where: { id } });
+    if (!product) {
+      throw new NotFoundException(`Product with ID ${id} not found`);
+    }
+    Object.assign(product, updateProductDto);
+    return this.repo.save(product);
+  }
+
+  async remove(id: string) {
+    const product = await this.repo.findOne({ where: { id } });
+    if (!product) {
+      throw new NotFoundException(`Product with ID ${id} not found`);
+    }
+    await this.repo.remove(product);
+    return { message: `Product with ID ${id} has been deleted` };
   }
 }

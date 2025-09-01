@@ -9,12 +9,12 @@ import { AddItemDto } from './dto/add-item.dto';
 
 @Injectable()
 export class CartsService {
-    constructor(
+  constructor(
     @InjectRepository(Cart) private cartsRepo: Repository<Cart>,
     @InjectRepository(CartItem) private itemsRepo: Repository<CartItem>,
     private users: UsersService,
     private products: ProductsService,
-  ) {}
+  ) { }
 
   async getUserCart(userId: string) {
     let cart = await this.cartsRepo.findOne({ where: { user: { id: userId } } });
@@ -46,5 +46,33 @@ export class CartsService {
     const cart = await this.getUserCart(userId);
     cart.items = [];
     return this.cartsRepo.save(cart);
+  }
+
+  async updateItem(userId: string, itemId: string, quantity: number) {
+    const cart = await this.getUserCart(userId);
+
+    const item = cart.items.find((i) => i.id === itemId);
+    if (!item) {
+      throw new Error(`Item with ID ${itemId} not found in cart`);
+    }
+
+    item.quantity = quantity;
+    await this.itemsRepo.save(item);
+
+    return cart;
+  }
+
+  async removeItem(userId: string, itemId: string) {
+    const cart = await this.getUserCart(userId);
+
+    const item = cart.items.find((i) => i.id === itemId);
+    if (!item) {
+      throw new Error(`Item with ID ${itemId} not found in cart`);
+    }
+
+    await this.itemsRepo.remove(item);
+
+    // refrescamos el carrito
+    return this.getUserCart(userId);
   }
 }
