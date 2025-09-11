@@ -2,13 +2,35 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from '../app.module';
 import { CategoriesService } from '../categories/categories.service';
 import { ProductsService } from '../products/products.service';
+import { UsersService } from '../users/users.service';
+import * as bcrypt from 'bcrypt';
 
 async function bootstrap() {
   const app = await NestFactory.createApplicationContext(AppModule);
   const categoriesService = app.get(CategoriesService);
   const productsService = app.get(ProductsService);
 
+  const usersService = app.get(UsersService);
+
   console.log('🌱 Iniciando seed de base de datos...');
+
+  // ====== Crear Usuarios ======
+  const users = [
+    { name: 'Admin Principal', email: 'admin@ecommerce.com', password: 'admin123', role: 'admin' },
+    { name: 'Usuario Alumno 1', email: 'alumno1@ecommerce.com', password: 'alumno123', role: 'customer' },
+    { name: 'Usuario Alumno 2', email: 'alumno2@ecommerce.com', password: 'alumno123', role: 'customer' },
+  ];
+
+  for (const u of users) {
+    const exists = await usersService.findByEmail(u.email);
+    if (!exists) {
+      const hashedPassword = await bcrypt.hash(u.password, 10);
+      const user = await usersService.create({ email: u.email, password: hashedPassword, name: u.name });
+      user.role = u.role as 'admin' | 'customer';
+      await (usersService as any).usersRepo.save(user); // guardado final
+      console.log(`Usuario creado: ${u.email} (${u.role})`);
+    }
+  }
 
   // ====== Crear Categorías ======
   const electronics = await categoriesService.create({

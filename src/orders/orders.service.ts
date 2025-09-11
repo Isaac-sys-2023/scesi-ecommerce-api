@@ -45,4 +45,16 @@ export class OrdersService {
     order.status = status;
     return this.ordersRepo.save(order);
   }
+
+  async markAsPaid(orderId: string, userId: string) {
+    const order = await this.ordersRepo.findOne({
+      where: { id: orderId, user: { id: userId } },
+    });
+
+    if (!order) throw new NotFoundException('Order not found');
+    if (order.status !== 'pending') throw new BadRequestException('Order not pending');
+
+    order.status = 'paid';
+    return this.ordersRepo.save(order);
+  }
 }
