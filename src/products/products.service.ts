@@ -62,4 +62,9 @@ export class ProductsService {
     await this.repo.remove(product);
     return { message: `Product with ID ${id} has been deleted` };
   }
+
+  async findByName(name: string) {
+    return this.repo.findOne({ where: { name } });
+  }
+
 }

@@ -23,7 +23,7 @@ export class AuthController {
   }
 
   @ApiBearerAuth()
-  // @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'))
   @Get('me')
   me(@Req() req: any) {
     return req.user; // { userId, email, role }

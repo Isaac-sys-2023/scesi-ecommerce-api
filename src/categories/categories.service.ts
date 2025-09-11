@@ -43,4 +43,8 @@ export class CategoriesService {
         }
         return this.repo.remove(category);
     }
+
+    async findByName(name: string) {
+        return this.repo.findOne({ where: { name } });
+    }
 }
