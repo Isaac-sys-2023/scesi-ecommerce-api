@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { FilterProductDto } from './dto/filter-product.dto';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -7,6 +7,8 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { Roles } from '../auth/roles.decorator';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { imageFileFilter, productImageStorage } from '../common/upload.config';
 
 
 @ApiTags('products')
@@ -43,5 +45,39 @@ export class ProductsController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.service.remove(id);
+  }
+
+
+  // Subir imagen
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  @Post(':id/image')
+  @UseInterceptors(FileInterceptor('file', {
+    storage: productImageStorage,
+    fileFilter: imageFileFilter,
+    limits: { fileSize: 2 * 1024 * 1024 } // 2MB
+  }))
+  async uploadImage(@Param('id') id: string, @UploadedFile() file: Express.Multer.File) {
+    return this.service.setImage(id, file.filename);
+  }
+
+  // Reemplazar imagen
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  @Patch(':id/image')
+  @UseInterceptors(FileInterceptor('file', {
+    storage: productImageStorage,
+    fileFilter: imageFileFilter,
+  }))
+  async replaceImage(@Param('id') id: string, @UploadedFile() file: Express.Multer.File) {
+    return this.service.replaceImage(id, file.filename);
+  }
+
+  // Eliminar imagen
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  @Delete(':id/image')
+  async deleteImage(@Param('id') id: string) {
+    return this.service.deleteImage(id);
   }
 }

@@ -7,6 +7,9 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UpdateProductDto } from './dto/update-product.dto';
 
+import { unlink } from 'fs/promises';
+import { join } from 'path';
+
 @Injectable()
 export class ProductsService {
   constructor(
@@ -67,4 +70,41 @@ export class ProductsService {
     return this.repo.findOne({ where: { name } });
   }
 
+  //Manejo de imagenes
+  async setImage(id: string, filename: string) {
+    const product = await this.findOne(id);
+    product.image = filename;
+    return this.repo.save(product);
+  }
+
+  async replaceImage(id: string, filename: string) {
+    const product = await this.findOne(id);
+
+    // borrar la anterior si existe
+    if (product.image) {
+      await this.deleteFile(product.image);
+    }
+
+    product.image = filename;
+    return this.repo.save(product);
+  }
+
+  async deleteImage(id: string) {
+    const product = await this.findOne(id);
+
+    if (product.image) {
+      await this.deleteFile(product.image);
+      product.image = "";
+      return this.repo.save(product);
+    }
+    return { message: 'No image found for this product' };
+  }
+
+  private async deleteFile(filename: string) {
+    try {
+      await unlink(join(process.cwd(), 'uploads/products', filename));
+    } catch (e) {
+      console.error('Error deleting file', e.message);
+    }
+  }
 }

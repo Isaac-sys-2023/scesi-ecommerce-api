@@ -21,6 +21,10 @@ export class Product {
   @Column({ type: 'int', default: 0 })
   stock: number;
 
+  //Imagen
+  @Column({ nullable: true })
+  image?: string;
+
   @ManyToOne(() => Category, (category) => category.products, { eager: true })
   category: Category;
 
