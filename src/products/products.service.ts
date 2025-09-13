@@ -23,6 +23,16 @@ export class ProductsService {
     return this.repo.save(product);
   }
 
+  private addImageUrl(product: any): any {
+    if (product.image) {
+      return {
+        ...product,
+        imageUrl: `${process.env.BASE_URL || 'http://localhost:3000'}/uploads/products/${product.image}`
+      };
+    }
+    return product;
+  }
+
   async findAll(filters: FilterProductDto) {
     const { page = 1, limit = 10, categoryId } = filters;
     const qb = this.repo.createQueryBuilder('product')
@@ -33,8 +43,10 @@ export class ProductsService {
     if (categoryId) qb.where('category.id = :categoryId', { categoryId });
 
     const [items, total] = await qb.getManyAndCount();
+    const parsedItems = items.map(i => this.addImageUrl(i));
     return {
-      data: items,
+      // data: items,
+      data: parsedItems,
       total,
       page,
       limit,
@@ -45,7 +57,8 @@ export class ProductsService {
   async findOne(id: string) {
     const product = await this.repo.findOne({ where: { id } });
     if (!product) throw new NotFoundException('Product not found');
-    return product;
+    // return product;
+    return this.addImageUrl(product);
   }
 
   async update(id: string, updateProductDto: UpdateProductDto) {
