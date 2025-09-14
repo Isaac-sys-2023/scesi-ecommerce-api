@@ -9,6 +9,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { imageFileFilter, productImageStorage } from '../common/upload.config';
+import type { Express } from 'express';
 
 
 @ApiTags('products')

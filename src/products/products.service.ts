@@ -10,6 +10,7 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { unlink } from 'fs/promises';
 import { join } from 'path';
 import { StorageService } from '../common/storage.service';
+import { Express } from 'express';
 
 @Injectable()
 export class ProductsService {

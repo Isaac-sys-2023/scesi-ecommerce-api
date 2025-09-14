@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { unlink } from 'fs/promises';
 import { join } from 'path';
 import cloudinary from './cloudinary.config';
+import { Express } from 'express';
 
 @Injectable()
 export class StorageService {
