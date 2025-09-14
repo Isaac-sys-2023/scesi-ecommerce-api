@@ -253,27 +253,60 @@ async function bootstrap() {
       .replace(/[\u0300-\u036f]/g, "")  // Elimina marcas diacríticas
       .toLowerCase();                   // Convierte a minúsculas
   }
-  
+
   for (const product of products) {
     const category = (await categoriesService.findOne(product.categoryId)).name;
     const src = path.join(process.cwd(), 'src', 'seeds', 'assets', slugify(category), product.image);
 
-    console.log('Buscando archivo en:', src);
-    const dest = join(uploadPath, product.image);
+    // console.log('Buscando archivo en:', src);
+    // const dest = join(uploadPath, product.image);
 
-    try {
-      if (!existsSync(dest)) {
-        copyFileSync(src, dest);
-        console.log(`📷 Copiada imagen: ${product.image}`);
-      } else {
-        console.log(`↪️ Imagen ya existe: ${product.image}`);
+
+    // try {
+    //   if (!existsSync(dest)) {
+    //     copyFileSync(src, dest);
+    //     console.log(`📷 Copiada imagen: ${product.image}`);
+    //   } else {
+    //     console.log(`↪️ Imagen ya existe: ${product.image}`);
+    //   }
+    // } catch (err) {
+    //   console.error(`❌ No se pudo copiar ${product.image}`, err);
+    // }
+    let imageUrl = product.image;
+
+    if (process.env.STORAGE_DRIVER === 'cloudinary') {
+      try {
+        // Simulamos un Express.Multer.File mínimo
+        const file = { path: src } as Express.Multer.File;
+        imageUrl = await productsService['storage'].upload(file);
+        console.log(`✅ Subida Cloudinary: ${imageUrl}`);
+      } catch (err) {
+        console.error(`❌ Error subiendo ${product.image}`, err);
       }
-    } catch (err) {
-      console.error(`❌ No se pudo copiar ${product.image}`, err);
+    } else {
+      // Si es local, copias como lo tienes ahora
+      const dest = join(uploadPath, product.image);
+      // if (!existsSync(dest)) copyFileSync(src, dest);
+      try {
+        if (!existsSync(dest)) {
+          copyFileSync(src, dest);
+          console.log(`📷 Copiada imagen: ${product.image}`);
+        } else {
+          console.log(`↪️ Imagen ya existe: ${product.image}`);
+        }
+      } catch (err) {
+        console.error(`❌ No se pudo copiar ${product.image}`, err);
+      }
+      imageUrl = product.image;
     }
 
-    await findOrCreateProduct(product);
-    console.log(`✅ Producto procesado: ${product.name}`);
+    // await findOrCreateProduct(product);
+    await findOrCreateProduct({
+      ...product,
+      image: imageUrl,
+    });
+
+    console.log(`✅ Producto procesado: ${product.name} con imagen: ${imageUrl}`);
   }
 
   console.log('✅ Seed insertado con éxito');
