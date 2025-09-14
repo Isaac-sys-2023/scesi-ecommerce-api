@@ -9,12 +9,14 @@ import { UpdateProductDto } from './dto/update-product.dto';
 
 import { unlink } from 'fs/promises';
 import { join } from 'path';
+import { StorageService } from '../common/storage.service';
 
 @Injectable()
 export class ProductsService {
   constructor(
     @InjectRepository(Product) private repo: Repository<Product>,
     private categories: CategoriesService,
+    private storage: StorageService,
   ) { }
 
   async create(dto: CreateProductDto) {
@@ -24,13 +26,16 @@ export class ProductsService {
   }
 
   private addImageUrl(product: any): any {
-    if (product.image) {
-      return {
-        ...product,
-        imageUrl: `${process.env.BASE_URL || 'http://localhost:3000'}/uploads/products/${product.image}`
-      };
+    if (!product.image) return product;
+
+    if (product.image.startsWith('http')) {
+      return { ...product, imageUrl: product.image };
     }
-    return product;
+
+    return {
+      ...product,
+      imageUrl: `${process.env.BASE_URL || 'http://localhost:3000'}/uploads/products/${product.image}`
+    };
   }
 
   async findAll(filters: FilterProductDto) {
@@ -84,32 +89,60 @@ export class ProductsService {
   }
 
   //Manejo de imagenes
-  async setImage(id: string, filename: string) {
+  // async setImage(id: string, filename: string) {
+  //   const product = await this.findOne(id);
+  //   product.image = filename;
+  //   return this.repo.save(product);
+  // }
+  async setImage(id: string, file: Express.Multer.File) {
     const product = await this.findOne(id);
-    product.image = filename;
+    const urlOrPath = await this.storage.upload(file);
+    product.image = urlOrPath;
     return this.repo.save(product);
   }
 
-  async replaceImage(id: string, filename: string) {
+  // async replaceImage(id: string, filename: string) {
+  //   const product = await this.findOne(id);
+
+  //   // borrar la anterior si existe
+  //   if (product.image) {
+  //     await this.deleteFile(product.image);
+  //   }
+
+  //   product.image = filename;
+  //   return this.repo.save(product);
+  // }
+  async replaceImage(id: string, file: Express.Multer.File) {
     const product = await this.findOne(id);
 
-    // borrar la anterior si existe
     if (product.image) {
-      await this.deleteFile(product.image);
+      await this.storage.delete(product.image);
     }
 
-    product.image = filename;
+    const urlOrPath = await this.storage.upload(file);
+    product.image = urlOrPath;
     return this.repo.save(product);
   }
 
+  // async deleteImage(id: string) {
+  //   const product = await this.findOne(id);
+
+  //   if (product.image) {
+  //     await this.deleteFile(product.image);
+  //     product.image = "";
+  //     return this.repo.save(product);
+  //   }
+  //   return { message: 'No image found for this product' };
+  // }
   async deleteImage(id: string) {
     const product = await this.findOne(id);
 
     if (product.image) {
-      await this.deleteFile(product.image);
-      product.image = "";
+      await this.storage.delete(product.image);
+      product.image = null;
       return this.repo.save(product);
     }
+
     return { message: 'No image found for this product' };
   }
 

@@ -58,7 +58,8 @@ export class ProductsController {
     limits: { fileSize: 2 * 1024 * 1024 } // 2MB
   }))
   async uploadImage(@Param('id') id: string, @UploadedFile() file: Express.Multer.File) {
-    return this.service.setImage(id, file.filename);
+    // return this.service.setImage(id, file.filename);
+    return this.service.setImage(id, file);
   }
 
   // Reemplazar imagen
@@ -70,7 +71,8 @@ export class ProductsController {
     fileFilter: imageFileFilter,
   }))
   async replaceImage(@Param('id') id: string, @UploadedFile() file: Express.Multer.File) {
-    return this.service.replaceImage(id, file.filename);
+    // return this.service.replaceImage(id, file.filename);
+    return this.service.replaceImage(id, file);
   }
 
   // Eliminar imagen
