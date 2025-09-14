@@ -24,8 +24,8 @@ import { OrdersModule } from './orders/orders.module';
         password: cfg.get('DB_PASS'),
         database: cfg.get('DB_NAME'),
         autoLoadEntities: true,
-        synchronize: true,
-        // synchronize: false,
+        // synchronize: true, //Solo descomentar para local y comentar el false
+        synchronize: false,
         migrationsRun: true,
         logging: cfg.get('NODE_ENV') === 'development',
 
