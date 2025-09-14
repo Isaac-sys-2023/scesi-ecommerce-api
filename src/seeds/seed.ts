@@ -134,6 +134,7 @@ import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcrypt';
 import { copyFileSync, existsSync, mkdirSync } from 'fs';
 import path, { join } from 'path';
+import { Express } from 'express';
 
 async function bootstrap() {
   const app = await NestFactory.createApplicationContext(AppModule);
