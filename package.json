@@ -21,7 +21,7 @@
     "seed": "ts-node src/seeds/seed.ts",
     "typeorm": "typeorm-ts-node-commonjs",
     "migration:generate": "npm run typeorm -- migration:generate ./migrations/InitSchema -d ./src/data-source.ts",
-    "migration:run": "npm run typeorm -- migration:run -d ./src/data-source.ts"
+    "migration:run": "npm run typeorm -- migration:run -d ./data-source.ts"
   },
   "dependencies": {
     "@nestjs/cli": "^11.0.10",
